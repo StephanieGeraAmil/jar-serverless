@@ -28,6 +28,7 @@ module.exports.createJar = async (event, context, callback) => {
       percentage: data.percentage,
       createdAt: now,
       updatedAt: now,
+      creator:data.userId,
     };
 
     if (data.name) {

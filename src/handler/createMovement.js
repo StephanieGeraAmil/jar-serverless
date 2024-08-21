@@ -27,6 +27,7 @@ module.exports.createMovement = async (event, context, callback) => {
       concept: data.concept,
       amount: data.amount,
       jar: data.jar,
+      creator:data.userId,
      
     };
 
