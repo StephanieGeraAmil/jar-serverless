@@ -2,13 +2,13 @@
 const uuid = require("uuid");
 const getClient = require("../mongo_client.js");
 
-module.exports.createJar = async (event, context, callback) => {
+module.exports.createMovement = async (event, context, callback) => {
   try {
     const client = await getClient.getClient();
     const now = new Date().toISOString();
     const data = JSON.parse(event.body);
 
-    if (typeof data.name !== "string") {
+    if (typeof data.concept !== "string") {
       return {
         statusCode: 400,
         headers: {
@@ -17,33 +17,32 @@ module.exports.createJar = async (event, context, callback) => {
           "Access-Control-Allow-Methods": "*",
         },
         body: JSON.stringify({
-          message: "Jar must have an name of type string",
+          message: "Movement must have an concept of type string",
         }),
       };
     }
 
     const Item = {
       id: uuid.v4(),
-      name: data.name,
-      percentage: data.percentage,
-      createdAt: now,
-      updatedAt: now,
-      creator:data.userId,
+      concept: data.concept,
+      amount: data.amount,
+      jar: data.jar,
+      creator:data.creator,
+     
     };
 
-    if (data.name) {
-      Item.name = data.name;
+    if (data.concept) {
+      Item.concept = data.concept;
     }
-    if (data.percentage) {
-      Item.percentage = data.percentage;
+    if (data.amount) {
+      Item.amount = data.amount;
     }
-   
 
     const db = await client.db("jar");
-    const jarsTable = await db.collection("jars");
-    const result = await jarsTable.insertOne(Item);
+    const movementsTable = await db.collection("movements");
+    const result = await movementsTable.insertOne(Item);
     if (!result["acknowledged"]) return;
-    const jarInserted = await jarsTable.findOne(result.insertedId);
+    const movementInserted = await movementsTable.findOne(result.insertedId);
 
     return {
       statusCode: 201,
@@ -52,7 +51,7 @@ module.exports.createJar = async (event, context, callback) => {
         "Access-Control-Allow-Credentials": true,
         "Access-Control-Allow-Methods": "*",
       },
-      body: JSON.stringify(jarInserted),
+      body: JSON.stringify(movementInserted),
     };
   } catch (e) {
     console.warn(e);

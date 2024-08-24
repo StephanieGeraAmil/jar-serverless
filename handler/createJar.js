@@ -2,13 +2,13 @@
 const uuid = require("uuid");
 const getClient = require("../mongo_client.js");
 
-module.exports.createUser = async (event, context, callback) => {
+module.exports.createJar = async (event, context, callback) => {
   try {
     const client = await getClient.getClient();
     const now = new Date().toISOString();
     const data = JSON.parse(event.body);
 
-    if (typeof data.email !== "string") {
+    if (typeof data.name !== "string") {
       return {
         statusCode: 400,
         headers: {
@@ -17,41 +17,43 @@ module.exports.createUser = async (event, context, callback) => {
           "Access-Control-Allow-Methods": "*",
         },
         body: JSON.stringify({
-          message: "User must have an email of type string",
+          message: "Jar must have an name of type string",
         }),
       };
     }
+
     const Item = {
       id: uuid.v4(),
-      email: data.email,
+      name: data.name,
+      percentage: data.percentage,
       createdAt: now,
       updatedAt: now,
+      creator:data.creator,
     };
 
     if (data.name) {
       Item.name = data.name;
     }
-    if (data.gender) {
-      Item.gender = data.gender;
+    if (data.percentage) {
+      Item.percentage = data.percentage;
     }
-    if (data.birthDate) {
-      Item.birthDate = data.birthDate;
-    }
+   
 
     const db = await client.db("jar");
-    const userTable = await db.collection("users");
-    const result = await userTable.insertOne(Item);
+    const jarsTable = await db.collection("jars");
+    const result = await jarsTable.insertOne(Item);
     if (!result["acknowledged"]) return;
-    const userInserted = await userTable.findOne(result.insertedId);
+    const jarInserted = await jarsTable.findOne(result.insertedId);
 
     return {
       statusCode: 201,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Methods": "*", // You can specify allowed methods here
+        "Access-Control-Allow-Headers": "*", // This header might be necessary if you are sending custom headers
       },
-      body: JSON.stringify(userInserted),
+      body: JSON.stringify(jarInserted),
     };
   } catch (e) {
     console.warn(e);

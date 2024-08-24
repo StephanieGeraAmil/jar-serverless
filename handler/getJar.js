@@ -4,58 +4,56 @@ const getClient = require("../mongo_client.js");
 module.exports.getJar = async (event) => {
   let response = [];
   try {
-    let params;
     const client = await getClient.getClient();
-    console.log(client);
-    if (event.queryStringParameters) {
-      params = {
-        Key: event.queryStringParameters,
-      };
-    }
     const db = await client.db("jar");
-        console.log(db);
     const jarsTable = await db.collection("jars");
-          console.log(jarsTable);
-    let result = null;
-    if (params && params.Key) {
-      result = await jarsTable.findOne(params.Key);
+
+    let result = [];
+    if (event.queryStringParameters && event.queryStringParameters.userId) {
+      const userId = event.queryStringParameters.userId;
+
+      console.log(`Fetching jars for creator: ${userId}`);
+      
+      // Logging to verify query execution
+      console.log("Query:", { creator: userId });
+      result = await jarsTable.find({ creator: userId }).toArray();
+      console.log("result", result);
     } else {
       result = await jarsTable.find().toArray();
+      console.log("all jars", result);
     }
-      console.log(result);
-    if (result !== [] ) {
+
+    if (result.length > 0) {
       response = {
         statusCode: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Credentials": true,
         },
-        body: JSON.stringify({
-          message: result,
-        }),
+        body: JSON.stringify(result),  // Return the array directly
       };
     } else {
       response = {
-        statusCode: 500,
+        statusCode: 404,
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Credentials": true,
         },
         body: JSON.stringify({
-          message: "jar not found",
+          message: "No jars found for the provided userId",
         }),
       };
     }
   } catch (e) {
     console.warn(e);
     response = {
-      statusCode: 400,
+      statusCode: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        message: e,
+        message: e.message,
       }),
     };
   } finally {

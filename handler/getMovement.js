@@ -1,59 +1,54 @@
 "use strict";
 const getClient = require("../mongo_client.js");
 
-module.exports.getUser = async (event) => {
+module.exports.getMovement = async (event) => {
+  let response = [];
   try {
-    let params;
-    let response = null;
     const client = await getClient.getClient();
-
-    if (event.queryStringParameters) {
-      params = {
-        Key: event.queryStringParameters,
-      };
-    }
     const db = await client.db("jar");
-    const users = await db.collection("users");
-    let result = null;
-    if (params && params.Key) {
-      result = await users.findOne(params.Key);
+    const movementsTable = await db.collection("movements");
+
+    let result = [];
+    if (event.queryStringParameters && event.queryStringParameters.userId) {
+      const userId = event.queryStringParameters.userId;
+      result = await movementsTable.find({ creator: userId }).toArray();
+      console.log("result", result);
     } else {
-      result = await users.find().toArray();
+      result = await movementsTable.find().toArray();
+      console.log("all movements", result);
     }
 
-    if (result !== null) {
+    if (result.length > 0) {
       response = {
         statusCode: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Credentials": true,
         },
-        body: JSON.stringify({
-          message: result,
-        }),
+        body: JSON.stringify(result),  // Return the array directly
       };
     } else {
       response = {
-        statusCode: 500,
+        statusCode: 404,  // Use 404 for not found
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Credentials": true,
         },
         body: JSON.stringify({
-          message: "user not found",
+          message: "No movements found for the provided userId",
         }),
       };
     }
   } catch (e) {
     console.warn(e);
     response = {
-      statusCode: 400,
+      statusCode: 500,  // Use 500 for server errors
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        message: e,
+        message: e.message,
       }),
     };
   } finally {

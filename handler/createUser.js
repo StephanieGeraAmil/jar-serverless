@@ -1,14 +1,15 @@
 "use strict";
 const uuid = require("uuid");
 const getClient = require("../mongo_client.js");
+const { createUser } = require("./createUserHelper");
 
-module.exports.createMovement = async (event, context, callback) => {
+module.exports.createUser = async (event, context, callback) => {
   try {
     const client = await getClient.getClient();
-    const now = new Date().toISOString();
+    
     const data = JSON.parse(event.body);
 
-    if (typeof data.concept !== "string") {
+    if (typeof data.email !== "string") {
       return {
         statusCode: 400,
         headers: {
@@ -17,32 +18,16 @@ module.exports.createMovement = async (event, context, callback) => {
           "Access-Control-Allow-Methods": "*",
         },
         body: JSON.stringify({
-          message: "Movement must have an concept of type string",
+          message: "User must have an email of type string",
         }),
       };
     }
-
-    const Item = {
-      id: uuid.v4(),
-      concept: data.concept,
-      amount: data.amount,
-      jar: data.jar,
-      creator:data.userId,
-     
-    };
-
-    if (data.concept) {
-      Item.concept = data.concept;
-    }
-    if (data.amount) {
-      Item.amount = data.amount;
-    }
-
+    const Item= createUser(data);
     const db = await client.db("jar");
-    const movementsTable = await db.collection("movements");
-    const result = await movementsTable.insertOne(Item);
+    const userTable = await db.collection("users");
+    const result = await userTable.insertOne(Item);
     if (!result["acknowledged"]) return;
-    const movementInserted = await movementsTable.findOne(result.insertedId);
+    const userInserted = await userTable.findOne(result.insertedId);
 
     return {
       statusCode: 201,
@@ -51,7 +36,7 @@ module.exports.createMovement = async (event, context, callback) => {
         "Access-Control-Allow-Credentials": true,
         "Access-Control-Allow-Methods": "*",
       },
-      body: JSON.stringify(movementInserted),
+      body: JSON.stringify(userInserted),
     };
   } catch (e) {
     console.warn(e);

@@ -1,107 +1,206 @@
 service: jars-serverless
-
 frameworkVersion: "3"
-custom:
-  stage: "${opt:stage, self:provider.stage}"
+
 provider:
   name: aws
-  stage: "dev"
-  runtime: nodejs12.x
+  runtime: nodejs18.x
   region: us-east-1
-  environment: ${file(env.yml):${self:custom.stage}}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - logs:*
-        - states:*
-        - events:*
-        - execute-api:ManageConnections
-        - lambda:InvokeFunction
-      Resource:
-        - "*"
+  environment:
+    MONGODB_URI: mongodb+srv://lambda:L4mbd4.@cluster0.ykgrq.mongodb.net/jar?retryWrites=true&w=majority
 
 functions:
   create-user:
-    handler: src/handler/createUser.createUser
+    handler: handler/createUser.createUser
     events:
       - http:
           path: users
           method: post
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   get-user:
-    handler: src/handler/getUser.getUser
+    handler: handler/getUser.getUser
     events:
       - http:
           path: users
           method: get
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+  get-user-by-email:
+    handler: handler/getUser.getUserByEmail
+    events:
+      - http:
+          path: users
+          method: get
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   update-user:
-    handler: src/handler/updateUser.updateUser
+    handler: handler/updateUser.updateUser
     events:
       - http:
-          path: users/{id}
+          path: users/id/{id}
           method: put
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   delete-user:
-    handler: src/handler/deleteUser.deleteUser
+    handler: handler/deleteUser.deleteUser
     events:
       - http:
-          path: users/{id}
+          path: users/id/{id}
           method: delete
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   create-movement:
-    handler: src/handler/createMovement.createMovement
+    handler: handler/createMovement.createMovement
     events:
       - http:
           path: movements
           method: post
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   get-movement:
-    handler: src/handler/getMovement.getMovement
+    handler: handler/getMovement.getMovement
     events:
       - http:
           path: movements
           method: get
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   update-movement:
-    handler: src/handler/updateMovement.updateMovement
+    handler: handler/updateMovement.updateMovement
     events:
       - http:
           path: movements/{id}
           method: put
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   delete-movement:
-    handler: src/handler/deleteMovement.deleteMovement
+    handler: handler/deleteMovement.deleteMovement
     events:
       - http:
           path: movements/{id}
           method: delete
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   create-jar:
-    handler: src/handler/createJar.createJar
+    handler: handler/createJar.createJar
     events:
       - http:
           path: jars
           method: post
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   get-jar:
-    handler: src/handler/getJar.getJar
+    handler: handler/getJar.getJar
     events:
       - http:
           path: jars
           method: get
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   update-jar:
-    handler: src/handler/updateJar.updateJar
+    handler: handler/updateJar.updateJar
     events:
       - http:
           path: jars/{id}
           method: put
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
   delete-jar:
-    handler: src/handler/deleteJar.deleteJar
+    handler: handler/deleteJar.deleteJar
     events:
       - http:
           path: jars/{id}
           method: delete
-          cors: true
+          cors:
+            origin: '*'  # Allows all origins
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
